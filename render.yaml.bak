@@ -1,0 +1,29 @@
+services:
+  # Express Backend API
+  - type: web
+    name: striver-tracker-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: MONGO_URI
+        sync: false
+      - key: PORT
+        value: 5000
+
+  # React Frontend Static Site
+  - type: static
+    name: striver-tracker-web
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false

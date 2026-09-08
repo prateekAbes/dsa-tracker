@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: striver-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - striver-net
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: striver-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/striver-tracker
+      - PORT=5000
+    depends_on:
+      - mongo
+    networks:
+      - striver-net
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: striver-client
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - striver-net
+
+volumes:
+  mongo-data:
+
+networks:
+  striver-net:
+    driver: bridge
